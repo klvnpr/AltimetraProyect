@@ -78,7 +78,17 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     DestinoMovil.APP_PRINCIPAL -> {
-                        PantallaPrincipal(viewModel = viewModel)
+                        PantallaPrincipal(
+                            viewModel = viewModel,
+                            onCerrarSesion = {
+                                // 1. Borramos la sesión en el teléfono
+                                sessionManager.setLoginState(false)
+                                // 2. Bloqueamos la app del reloj enviándole "false"
+                                clienteMessage.enviarEstadoAutenticacion(false)
+                                // 3. Devolvemos al usuario a la pantalla de Login
+                                pantallaActual = DestinoMovil.LOGIN
+                            }
+                        )
                     }
                 }
             }

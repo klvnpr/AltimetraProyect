@@ -1,5 +1,7 @@
 package com.altimetra.mobile.auth
 
+import android.app.Activity
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -7,10 +9,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun SplashPantalla(onTimeout: () -> Unit) {
@@ -41,6 +45,11 @@ fun LoginPantalla(onLoginExitoso: () -> Unit, onIrARegistro: () -> Unit, validar
     var contrasena by remember { mutableStateOf("") }
     var errorMsg by remember { mutableStateOf("") }
 
+    // NUEVAS VARIABLES PARA EL CONTROL DE INTENTOS
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var intentosRestantes by remember { mutableIntStateOf(3) }
+
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.Center,
@@ -61,12 +70,31 @@ fun LoginPantalla(onLoginExitoso: () -> Unit, onIrARegistro: () -> Unit, validar
         Button(
             onClick = {
                 if (validar(usuario, contrasena)) {
+                    // Si acierta, reseteamos el mensaje y entramos
+                    errorMsg = ""
                     onLoginExitoso()
                 } else {
-                    errorMsg = "Credenciales incorrectas"
+                    // Si falla, restamos un intento
+                    intentosRestantes -= 1
+
+                    if (intentosRestantes > 0) {
+                        errorMsg = "Credenciales incorrectas, $intentosRestantes intentos restantes"
+                        Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+                    } else {
+                        errorMsg = "Intentos excedidos. La aplicación se cerrará."
+                        Toast.makeText(context, "Lo siento, intentos excedidos. La aplicación se cerrará.", Toast.LENGTH_LONG).show()
+
+                        // Damos 2 segundos para que el usuario lea el mensaje y luego cerramos la app
+                        coroutineScope.launch {
+                            delay(2000)
+                            (context as? Activity)?.finishAffinity()
+                        }
+                    }
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            // Bloqueamos el botón si ya no quedan intentos para evitar múltiples clics
+            enabled = intentosRestantes > 0
         ) {
             Text("Ingresar")
         }
