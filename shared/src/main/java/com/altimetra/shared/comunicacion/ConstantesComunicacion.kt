@@ -13,4 +13,9 @@ object ConstantesComunicacion {
      */
     const val CLAVE_DATOS = "datos"
 
+    /**
+     * NUEVA: Ruta utilizada para enviar el estado de
+     * inicio de sesión desde el teléfono hacia el reloj.
+     */
+    const val RUTA_AUTH = "/altimetra/auth"
 }
