@@ -1,11 +1,16 @@
 package com.altimetra.mobile
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.*
+import androidx.core.content.ContextCompat
 import com.altimetra.mobile.presentation.pantallas.PantallaPrincipal
 import com.altimetra.mobile.auth.SplashPantalla
 import com.altimetra.mobile.auth.LoginPantalla
@@ -21,15 +26,28 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: AltimetraViewModel by viewModels()
     private val sessionManager by lazy { SessionManager(this) }
-
-    // Inicializamos el cliente de mensajes móvil
     private val clienteMessage by lazy { ClienteMessageMobile(this) }
+
+    // Lanzador para pedir permiso de notificaciones en Android 13+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        // Si no se concede, el usuario no recibirá alertas en el teléfono
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Iniciamos el cliente de comunicación (necesario por la estructura de tu compañero)
+        // Pedir permiso de notificaciones si es necesario
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != 
+                PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        // Iniciamos el cliente de comunicación
         clienteMessage.iniciar { /* Recibe lecturas si fuera necesario en la UI */ }
 
         // Si el usuario ya está logueado localmente en el SharedPreferences,

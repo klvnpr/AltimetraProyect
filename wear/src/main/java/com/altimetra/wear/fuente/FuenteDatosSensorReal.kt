@@ -16,13 +16,20 @@ class FuenteDatosSensorReal(context: Context) : FuenteDatosPresion {
     private val sensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE)
 
     override fun obtenerLecturas(): Flow<LecturaPresion> = callbackFlow {
+        var ultimaLecturaTiempo = 0L
+
         val listener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent?) {
+                val ahora = System.currentTimeMillis()
+                // Limitamos a máximo 2 lecturas por segundo para ahorrar batería y fluidez
+                if (ahora - ultimaLecturaTiempo < 500) return 
+
                 event?.let {
                     if (it.sensor.type == Sensor.TYPE_PRESSURE) {
+                        ultimaLecturaTiempo = ahora
                         val lectura = LecturaPresion(
                             presion = it.values[0].toDouble(),
-                            tiempo = System.currentTimeMillis()
+                            tiempo = ahora
                         )
                         trySend(lectura)
                     }
@@ -36,10 +43,9 @@ class FuenteDatosSensorReal(context: Context) : FuenteDatosPresion {
             sensorManager.registerListener(
                 listener,
                 sensor,
-                SensorManager.SENSOR_DELAY_UI
+                SensorManager.SENSOR_DELAY_NORMAL // Menos agresivo que UI
             )
         } else {
-            // Si el dispositivo no tiene barómetro (raro en Watch 4), cerramos el flujo
             close(Exception("Sensor de presión no disponible"))
         }
 

@@ -11,9 +11,10 @@ import com.altimetra.shared.modelo.TipoSimulacion
 import com.altimetra.wear.comunicacion.ClienteMessageWear
 import com.altimetra.wear.modelo.EstadoPantalla
 import com.altimetra.wear.repositorio.RepositorioAltimetra
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AltimetraViewModel(
     application: Application,
@@ -38,17 +39,21 @@ class AltimetraViewModel(
     private fun observarDatos() {
         observationJob?.cancel()
         observationJob = viewModelScope.launch {
+            // Recolectamos datos en un hilo de computación (Default)
             repositorio.obtenerDatos().collect { datos ->
-                _estadoPantalla.value =
-                    _estadoPantalla.value.copy(
-                        presion = datos.lectura.presion,
-                        altitud = datos.altitud,
-                        estado = datos.estado,
-                        modo = datos.modoFuncionamiento,
-                        simulacion = datos.tipoSimulacion ?: _estadoPantalla.value.simulacion,
-                        conexion = EstadoConexion.CONECTADO,
-                        cantidadLecturas = repositorio.cantidadLecturas()
-                    )
+                // Solo volvemos al hilo principal (Main) para actualizar la UI
+                withContext(Dispatchers.Main) {
+                    _estadoPantalla.value =
+                        _estadoPantalla.value.copy(
+                            presion = datos.lectura.presion,
+                            altitud = datos.altitud,
+                            estado = datos.estado,
+                            modo = datos.modoFuncionamiento,
+                            simulacion = datos.tipoSimulacion ?: _estadoPantalla.value.simulacion,
+                            conexion = EstadoConexion.CONECTADO,
+                            cantidadLecturas = repositorio.cantidadLecturas()
+                        )
+                }
             }
         }
     }

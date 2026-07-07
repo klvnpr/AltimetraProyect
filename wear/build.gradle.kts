@@ -10,7 +10,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.altimetra.wear"
+        applicationId = "com.altimetra.mobile"
         minSdk = 30
         targetSdk = 36
         versionCode = 1
@@ -20,9 +20,15 @@ android {
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            // Activamos R8 para optimizar el código y mejorar la fluidez en el reloj
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            // Usamos la firma de debug para poder instalar el APK de release sin crear un keystore oficial aún
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
