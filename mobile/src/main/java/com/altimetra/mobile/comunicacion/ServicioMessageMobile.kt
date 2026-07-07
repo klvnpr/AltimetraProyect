@@ -2,8 +2,11 @@ package com.altimetra.mobile.comunicacion
 
 import android.util.Log
 import com.altimetra.mobile.repositorio.RepositorioAltimetra
+import com.altimetra.mobile.repositorio.SessionManager
+import com.altimetra.shared.comunicacion.ConstantesComunicacion
 import com.altimetra.shared.comunicacion.SerializadorDatos
 import com.google.android.gms.wearable.MessageEvent
+import com.google.android.gms.wearable.Wearable
 import com.google.android.gms.wearable.WearableListenerService
 
 class ServicioMessageMobile : WearableListenerService() {
@@ -12,7 +15,6 @@ class ServicioMessageMobile : WearableListenerService() {
 
         private const val TAG = "Altimetra"
 
-        private const val RUTA = "/altimetra/datos"
     }
 
     override fun onMessageReceived(
@@ -21,37 +23,30 @@ class ServicioMessageMobile : WearableListenerService() {
 
         super.onMessageReceived(messageEvent)
 
-        Log.d(TAG, "===================================")
-        Log.d(TAG, "MENSAJE RECIBIDO")
-        Log.d(TAG, "Ruta: ${messageEvent.path}")
-        Log.d(TAG, "Bytes: ${messageEvent.data.size}")
+        Log.d(TAG, "MENSAJE RECIBIDO - Ruta: ${messageEvent.path}")
 
-        if (messageEvent.path != RUTA) {
+        when (messageEvent.path) {
+            ConstantesComunicacion.RUTA_DATOS -> {
+                val json = String(messageEvent.data)
+                val datos = SerializadorDatos.deserializar(json)
+                RepositorioAltimetra.actualizar(datos)
+                Log.d(TAG, "Datos de altimetría recibidos y actualizados")
+            }
+            ConstantesComunicacion.RUTA_SOLICITAR_AUTH -> {
+                val sessionManager = SessionManager(this)
+                val isLoggedIn = sessionManager.isUserLoggedIn()
+                val bytes = isLoggedIn.toString().toByteArray()
 
-            Log.d(TAG, "Ruta incorrecta")
-
-            return
-
+                // Respondemos al nodo que solicitó la información
+                Wearable.getMessageClient(this).sendMessage(
+                    messageEvent.sourceNodeId,
+                    ConstantesComunicacion.RUTA_AUTH,
+                    bytes
+                ).addOnSuccessListener {
+                    Log.d(TAG, "Respuesta de autenticación ($isLoggedIn) enviada al reloj")
+                }
+            }
         }
-
-        val json = String(messageEvent.data)
-
-        Log.d(TAG, "JSON:")
-        Log.d(TAG, json)
-
-        val datos = SerializadorDatos.deserializar(json)
-
-        Log.d(TAG, "--------- DATOS ---------")
-        Log.d(TAG, "Presión   : ${datos.lectura.presion}")
-        Log.d(TAG, "Altitud   : ${datos.altitud}")
-        Log.d(TAG, "Estado    : ${datos.estado}")
-        Log.d(TAG, "Modo      : ${datos.modoFuncionamiento}")
-        Log.d(TAG, "Escenario : ${datos.tipoSimulacion}")
-        Log.d(TAG, "Tiempo    : ${datos.lectura.tiempo}")
-        Log.d(TAG, "-------------------------")
-
-        RepositorioAltimetra.actualizar(datos)
-
     }
 
 }
