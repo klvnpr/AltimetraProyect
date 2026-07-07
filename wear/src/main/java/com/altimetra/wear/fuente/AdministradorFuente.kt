@@ -1,5 +1,6 @@
 package com.altimetra.wear.fuente
 
+import android.content.Context
 import com.altimetra.shared.modelo.ModoFuncionamiento
 
 object AdministradorFuente {
@@ -10,31 +11,35 @@ object AdministradorFuente {
     private val simulada =
         FuenteDatosSimulada()
 
-    fun obtenerFuente(): FuenteDatosPresion {
+    private var real: FuenteDatosSensorReal? = null
+
+    fun obtenerFuente(context: Context): FuenteDatosPresion {
 
         return when (modo) {
 
             ModoFuncionamiento.SIMULACION ->
                 simulada
 
-            ModoFuncionamiento.REAL ->
-                simulada // temporalmente
+            ModoFuncionamiento.REAL -> {
+                if (real == null) {
+                    real = FuenteDatosSensorReal(context)
+                }
+                real!!
+            }
 
         }
 
     }
 
     fun usarSimulacion() {
-
         modo = ModoFuncionamiento.SIMULACION
-
     }
 
     fun usarSensorReal() {
-
         modo = ModoFuncionamiento.REAL
-
     }
+    
+    fun obtenerModoActual() = modo
 
     fun cambiarEscenario(
         tipo: com.altimetra.shared.modelo.TipoSimulacion

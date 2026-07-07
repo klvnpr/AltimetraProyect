@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private val viewModel: AltimetraViewModel by viewModels {
-        AltimetraViewModelFactory(clienteMessage)
+        AltimetraViewModelFactory(application, clienteMessage)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
