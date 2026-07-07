@@ -18,4 +18,10 @@ object ConstantesComunicacion {
      * inicio de sesión desde el teléfono hacia el reloj.
      */
     const val RUTA_AUTH = "/altimetra/auth"
+
+    /**
+     * NUEVA: Ruta utilizada por el reloj para solicitar
+     * el estado de autenticación al teléfono.
+     */
+    const val RUTA_SOLICITAR_AUTH = "/altimetra/request_auth"
 }

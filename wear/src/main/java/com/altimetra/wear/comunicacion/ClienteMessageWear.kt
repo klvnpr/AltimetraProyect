@@ -23,16 +23,36 @@ class ClienteMessageWear(
 
     /**
      * NUEVA FUNCIÓN: Registra el escucha para recibir el estado de login desde el tlf
+     * y solicita el estado actual proactivamente.
      */
     fun iniciar(authCallback: (Boolean) -> Unit) {
         this.authCallback = authCallback
         messageClient.addListener(this)
             .addOnSuccessListener {
                 Log.d("Altimetra", "Reloj listo para escuchar autenticación")
+                // Una vez registrado el listener, pedimos el estado actual
+                solicitarEstadoAutenticacion()
             }
             .addOnFailureListener {
                 Log.e("Altimetra", "Error al registrar escucha de autenticación en reloj", it)
             }
+    }
+
+    /**
+     * NUEVA FUNCIÓN: Envía un mensaje al teléfono pidiendo el estado de login.
+     */
+    fun solicitarEstadoAutenticacion() {
+        nodeClient.connectedNodes.addOnSuccessListener { nodos ->
+            nodos.forEach { nodo ->
+                messageClient.sendMessage(
+                    nodo.id,
+                    ConstantesComunicacion.RUTA_SOLICITAR_AUTH,
+                    byteArrayOf()
+                ).addOnSuccessListener {
+                    Log.d("Altimetra", "Solicitud de estado de sesión enviada al tlf")
+                }
+            }
+        }
     }
 
     /**
