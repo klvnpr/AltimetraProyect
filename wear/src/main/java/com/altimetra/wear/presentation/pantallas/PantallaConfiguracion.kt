@@ -6,10 +6,13 @@ import androidx.compose.ui.Modifier
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import com.altimetra.shared.modelo.TipoSimulacion
 import com.altimetra.wear.presentation.componentes.SelectorOpcion
 import com.altimetra.wear.presentation.componentes.TarjetaDato
+import com.altimetra.wear.presentation.theme.NaranjaSendero
+import com.altimetra.wear.presentation.theme.TealClaro
 import com.altimetra.wear.presentation.viewmodel.AltimetraViewModel
 
 @Composable
@@ -29,7 +32,11 @@ fun PantallaConfiguracion(
 
         item {
 
-            Text("CONFIGURACIÓN")
+            Text(
+                text = "CONFIGURACIÓN",
+                style = MaterialTheme.typography.titleMedium,
+                color = TealClaro
+            )
 
         }
 
@@ -42,7 +49,9 @@ fun PantallaConfiguracion(
         item {
 
             Text(
-                text = "Escenario"
+                text = "Escenario",
+                style = MaterialTheme.typography.labelMedium,
+                color = NaranjaSendero
             )
 
         }
@@ -132,7 +141,9 @@ fun PantallaConfiguracion(
         item {
 
             Text(
-                text = "Modo"
+                text = "Modo",
+                style = MaterialTheme.typography.labelMedium,
+                color = TealClaro
             )
 
         }
