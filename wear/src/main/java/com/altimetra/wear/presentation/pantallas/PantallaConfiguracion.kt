@@ -1,5 +1,6 @@
 package com.altimetra.wear.presentation.pantallas
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -30,7 +31,9 @@ fun PantallaConfiguracion(
 
     ScalingLazyColumn(
 
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
 
     ) {
 
@@ -168,7 +171,7 @@ fun PantallaConfiguracion(
 
                 seleccionado = estado.modo == ModoFuncionamiento.SIMULACION,
 
-                onClick = { 
+                onClick = {
                     viewModel.cambiarSimulacion(estado.simulacion)
                 }
 
@@ -184,7 +187,7 @@ fun PantallaConfiguracion(
 
                 seleccionado = estado.modo == ModoFuncionamiento.REAL,
 
-                onClick = { 
+                onClick = {
                     viewModel.usarSensorReal()
                 }
 

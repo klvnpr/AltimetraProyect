@@ -135,6 +135,10 @@ fun LoginPantalla(onLoginExitoso: () -> Unit, onIrARegistro: () -> Unit, validar
                         leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null, tint = TealAltimetra) },
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -146,6 +150,10 @@ fun LoginPantalla(onLoginExitoso: () -> Unit, onIrARegistro: () -> Unit, validar
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -257,6 +265,10 @@ fun RegistroPantalla(onRegistroExitoso: () -> Unit, registrar: (String, String) 
                         leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null, tint = TealAltimetra) },
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(12.dp))
@@ -268,6 +280,10 @@ fun RegistroPantalla(onRegistroExitoso: () -> Unit, registrar: (String, String) 
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
 

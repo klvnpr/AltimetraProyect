@@ -36,8 +36,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             AltimetraProyectTheme {
                 // Iniciamos con el estado guardado localmente para que sea instantáneo
-                var cuentaEstaActivaEnTelefono by remember { 
-                    mutableStateOf(sessionManager.isUserLoggedIn()) 
+                var cuentaEstaActivaEnTelefono by remember {
+                    mutableStateOf(sessionManager.isUserLoggedIn())
                 }
                 var pantallaActual by remember { mutableStateOf(DestinoWear.SPLASH) }
 
@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
                     }
                     DestinoWear.APP_PRINCIPAL -> {
                         PantallaPrincipal(viewModel = viewModel)
-                        
+
                         // Si de pronto el teléfono dice que ya no está logueado, bloqueamos
                         if (!cuentaEstaActivaEnTelefono) {
                             pantallaActual = DestinoWear.BLOQUEADO
