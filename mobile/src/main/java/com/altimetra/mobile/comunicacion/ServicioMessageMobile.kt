@@ -3,6 +3,7 @@ package com.altimetra.mobile.comunicacion
 import android.util.Log
 import com.altimetra.mobile.repositorio.RepositorioAltimetra
 import com.altimetra.mobile.repositorio.SessionManager
+import com.altimetra.mobile.util.NotificadorAltimetra
 import com.altimetra.shared.comunicacion.ConstantesComunicacion
 import com.altimetra.shared.comunicacion.SerializadorDatos
 import com.google.android.gms.wearable.MessageEvent
@@ -30,6 +31,10 @@ class ServicioMessageMobile : WearableListenerService() {
                 val json = String(messageEvent.data)
                 val datos = SerializadorDatos.deserializar(json)
                 RepositorioAltimetra.actualizar(datos)
+                
+                // NOTIFICACIÓN: Verificamos si hay que avisar al usuario
+                NotificadorAltimetra.mostrarNotificacionSiEsNecesario(this, datos.estado)
+
                 Log.d(TAG, "Datos de altimetría recibidos y actualizados")
             }
             ConstantesComunicacion.RUTA_SOLICITAR_AUTH -> {

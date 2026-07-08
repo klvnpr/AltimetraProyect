@@ -3,11 +3,13 @@ package com.altimetra.wear.presentation.pantallas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
+import com.altimetra.shared.modelo.ModoFuncionamiento
 import com.altimetra.shared.modelo.TipoSimulacion
 import com.altimetra.wear.presentation.componentes.SelectorOpcion
 import com.altimetra.wear.presentation.componentes.TarjetaDato
@@ -23,6 +25,8 @@ fun PantallaConfiguracion(
 ) {
 
     val estado = viewModel.estadoPantalla.value
+
+    val modoSimulacionActivo = estado.modo == ModoFuncionamiento.SIMULACION
 
     ScalingLazyColumn(
 
@@ -51,7 +55,7 @@ fun PantallaConfiguracion(
             Text(
                 text = "Escenario",
                 style = MaterialTheme.typography.labelMedium,
-                color = NaranjaSendero
+                color = if (modoSimulacionActivo) NaranjaSendero else Color.Gray.copy(alpha = 0.5f)
             )
 
         }
@@ -63,7 +67,9 @@ fun PantallaConfiguracion(
                 texto = "Ascenso",
 
                 seleccionado =
-                    estado.simulacion == TipoSimulacion.ASCENSO
+                    modoSimulacionActivo && estado.simulacion == TipoSimulacion.ASCENSO,
+
+                habilitado = modoSimulacionActivo
 
             ) {
 
@@ -82,7 +88,9 @@ fun PantallaConfiguracion(
                 texto = "Descenso",
 
                 seleccionado =
-                    estado.simulacion == TipoSimulacion.DESCENSO
+                    modoSimulacionActivo && estado.simulacion == TipoSimulacion.DESCENSO,
+
+                habilitado = modoSimulacionActivo
 
             ) {
 
@@ -101,7 +109,9 @@ fun PantallaConfiguracion(
                 texto = "Estable",
 
                 seleccionado =
-                    estado.simulacion == TipoSimulacion.ESTABLE
+                    modoSimulacionActivo && estado.simulacion == TipoSimulacion.ESTABLE,
+
+                habilitado = modoSimulacionActivo
 
             ) {
 
@@ -120,7 +130,9 @@ fun PantallaConfiguracion(
                 texto = "Tormenta",
 
                 seleccionado =
-                    estado.simulacion == TipoSimulacion.TORMENTA
+                    modoSimulacionActivo && estado.simulacion == TipoSimulacion.TORMENTA,
+
+                habilitado = modoSimulacionActivo
 
             ) {
 
@@ -154,9 +166,11 @@ fun PantallaConfiguracion(
 
                 texto = "Simulación",
 
-                seleccionado = true,
+                seleccionado = estado.modo == ModoFuncionamiento.SIMULACION,
 
-                onClick = { }
+                onClick = { 
+                    viewModel.cambiarSimulacion(estado.simulacion)
+                }
 
             )
 
@@ -166,11 +180,13 @@ fun PantallaConfiguracion(
 
             SelectorOpcion(
 
-                texto = "Sensor real (Próximamente)",
+                texto = "Sensor real",
 
-                seleccionado = false,
+                seleccionado = estado.modo == ModoFuncionamiento.REAL,
 
-                onClick = { }
+                onClick = { 
+                    viewModel.usarSensorReal()
+                }
 
             )
 

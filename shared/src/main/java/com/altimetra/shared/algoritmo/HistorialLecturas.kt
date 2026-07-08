@@ -7,7 +7,7 @@ import com.altimetra.shared.modelo.LecturaPresion
  */
 class HistorialLecturas(
 
-    private val capacidadMaxima: Int = 20
+    private val capacidadMaxima: Int = 100
 
 ) {
 

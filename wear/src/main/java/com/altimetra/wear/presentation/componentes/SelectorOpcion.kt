@@ -26,17 +26,31 @@ fun SelectorOpcion(
 
     seleccionado: Boolean,
 
+    habilitado: Boolean = true,
+
     onClick: () -> Unit
 
 ) {
+
+    val colorTexto = when {
+        !habilitado -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+        seleccionado -> TealClaro
+        else -> MaterialTheme.colorScheme.onSurface
+    }
+
+    val colorIndicador = when {
+        !habilitado -> Color.Gray.copy(alpha = 0.2f)
+        seleccionado -> TealClaro
+        else -> Color.Gray.copy(alpha = 0.4f)
+    }
 
     Row(
 
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable(enabled = habilitado) { onClick() }
             .background(
-                color = if (seleccionado) TealClaro.copy(alpha = 0.15f) else Color.Transparent,
+                color = if (seleccionado && habilitado) TealClaro.copy(alpha = 0.15f) else Color.Transparent,
                 shape = RoundedCornerShape(50)
             )
             .padding(horizontal = 10.dp, vertical = 8.dp),
@@ -50,14 +64,14 @@ fun SelectorOpcion(
         Text(
             text = texto,
             style = MaterialTheme.typography.labelMedium,
-            color = if (seleccionado) TealClaro else MaterialTheme.colorScheme.onSurface
+            color = colorTexto
         )
 
         Box(
             modifier = Modifier
                 .size(10.dp)
                 .background(
-                    color = if (seleccionado) TealClaro else Color.Gray.copy(alpha = 0.4f),
+                    color = colorIndicador,
                     shape = CircleShape
                 )
         )

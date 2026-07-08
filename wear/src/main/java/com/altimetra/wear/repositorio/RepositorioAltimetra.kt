@@ -1,5 +1,6 @@
 package com.altimetra.wear.repositorio
 
+import android.content.Context
 import com.altimetra.shared.algoritmo.AnalizadorPresion
 import com.altimetra.shared.algoritmo.CalculadoraAltitud
 import com.altimetra.shared.algoritmo.HistorialLecturas
@@ -13,12 +14,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 
 class RepositorioAltimetra(
-
+    private val context: Context,
     private val clienteMessage: ClienteMessageWear?
-
 ) {
 
     private val historial = HistorialLecturas()
+
+    private val modoActual = 
+        MutableStateFlow(ModoFuncionamiento.SIMULACION)
 
     private val tipoSimulacion =
         MutableStateFlow(TipoSimulacion.ESTABLE)
@@ -26,52 +29,37 @@ class RepositorioAltimetra(
     fun cambiarSimulacion(
         tipo: TipoSimulacion
     ) {
-
         historial.limpiar()
-
         CalculadoraAltitud.recalibrar()
-
+        AdministradorFuente.usarSimulacion()
         AdministradorFuente.cambiarEscenario(tipo)
-
         tipoSimulacion.value = tipo
+        modoActual.value = ModoFuncionamiento.SIMULACION
+    }
 
+    fun usarSensorReal() {
+        historial.limpiar()
+        CalculadoraAltitud.recalibrar()
+        AdministradorFuente.usarSensorReal()
+        modoActual.value = ModoFuncionamiento.REAL
     }
 
     fun obtenerDatos(): Flow<DatosAltimetra> {
-
         return AdministradorFuente
-            .obtenerFuente()
+            .obtenerFuente(context)
             .obtenerLecturas()
             .map { lectura ->
-
                 historial.agregar(lectura)
-
                 val datos = DatosAltimetra(
-
                     lectura = lectura,
-
-                    altitud = CalculadoraAltitud.calcular(
-                        lectura.presion
-                    ),
-
-                    estado = AnalizadorPresion.calcularEstado(
-                        historial.obtenerLecturas()
-                    ),
-
-                    modoFuncionamiento =
-                        ModoFuncionamiento.SIMULACION,
-
-                    tipoSimulacion =
-                        tipoSimulacion.value
-
+                    altitud = CalculadoraAltitud.calcular(lectura.presion),
+                    estado = AnalizadorPresion.calcularEstado(historial.obtenerLecturas()),
+                    modoFuncionamiento = modoActual.value,
+                    tipoSimulacion = if (modoActual.value == ModoFuncionamiento.SIMULACION) tipoSimulacion.value else null
                 )
-
                 clienteMessage?.enviar(datos)
-
                 datos
-
             }
-
     }
 
     fun cantidadLecturas(): Int {
