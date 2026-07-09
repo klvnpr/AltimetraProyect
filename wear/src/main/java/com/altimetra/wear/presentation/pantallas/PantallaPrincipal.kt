@@ -123,15 +123,16 @@ fun PantallaPrincipal(
             )
 
         }
-        item {
 
-            TarjetaDato(
-                titulo = "Escenario",
-                valor = estado.simulacion.name,
-                icono = Icons.Filled.Terrain,
-                colorAcento = NaranjaSendero
-            )
-
+        if (estado.modo == com.altimetra.shared.modelo.ModoFuncionamiento.SIMULACION) {
+            item {
+                TarjetaDato(
+                    titulo = "Escenario",
+                    valor = estado.simulacion.name,
+                    icono = Icons.Filled.Terrain,
+                    colorAcento = NaranjaSendero
+                )
+            }
         }
 
         item {

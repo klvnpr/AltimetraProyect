@@ -1,10 +1,14 @@
 package com.altimetra.wear.presentation.viewmodel
 
 import android.app.Application
+import android.content.Context
+import android.os.VibrationEffect
+import android.os.Vibrator
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.altimetra.shared.modelo.EstadoAlerta
 import com.altimetra.shared.modelo.EstadoConexion
 import com.altimetra.shared.modelo.ModoFuncionamiento
 import com.altimetra.shared.modelo.TipoSimulacion
@@ -18,7 +22,7 @@ import kotlinx.coroutines.withContext
 
 class AltimetraViewModel(
     application: Application,
-    clienteMessage: ClienteMessageWear
+    private val clienteMessage: ClienteMessageWear
 ) : AndroidViewModel(application) {
 
     private val repositorio =
@@ -31,6 +35,9 @@ class AltimetraViewModel(
         get() = _estadoPantalla
 
     private var observationJob: Job? = null
+    
+    private val vibrator = application.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    private var ultimoEstadoVibrado: EstadoAlerta? = null
 
     init {
         observarDatos()
@@ -41,6 +48,13 @@ class AltimetraViewModel(
         observationJob = viewModelScope.launch {
             // Recolectamos datos en un hilo de computación (Default)
             repositorio.obtenerDatos().collect { datos ->
+                
+                // Lógica de vibración al cambiar de estado
+                if (datos.estado != ultimoEstadoVibrado) {
+                    vibrarSegunEstado(datos.estado)
+                    ultimoEstadoVibrado = datos.estado
+                }
+
                 // Solo volvemos al hilo principal (Main) para actualizar la UI
                 withContext(Dispatchers.Main) {
                     _estadoPantalla.value =
@@ -58,13 +72,25 @@ class AltimetraViewModel(
         }
     }
 
+    private fun vibrarSegunEstado(estado: EstadoAlerta) {
+        when (estado) {
+            EstadoAlerta.PRECAUCION -> {
+                vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE))
+            }
+            EstadoAlerta.PELIGRO -> {
+                val pattern = longArrayOf(0, 400, 200, 400, 200, 400)
+                vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1))
+            }
+            else -> {}
+        }
+    }
+
     fun cambiarSimulacion(tipo: TipoSimulacion) {
         repositorio.cambiarSimulacion(tipo)
         _estadoPantalla.value = _estadoPantalla.value.copy(
             simulacion = tipo,
             modo = ModoFuncionamiento.SIMULACION
         )
-        // Reiniciar observación para cambiar de fuente si es necesario
         observarDatos()
     }
 
@@ -77,21 +103,14 @@ class AltimetraViewModel(
     }
 
     fun abrirConfiguracion() {
-
-        _estadoPantalla.value =
-            _estadoPantalla.value.copy(
-                mostrarConfiguracion = true
-            )
-
+        _estadoPantalla.value = _estadoPantalla.value.copy(
+            mostrarConfiguracion = true
+        )
     }
 
     fun cerrarConfiguracion() {
-
-        _estadoPantalla.value =
-            _estadoPantalla.value.copy(
-                mostrarConfiguracion = false
-            )
-
+        _estadoPantalla.value = _estadoPantalla.value.copy(
+            mostrarConfiguracion = false
+        )
     }
-
 }

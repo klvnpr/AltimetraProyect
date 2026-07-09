@@ -16,42 +16,34 @@ class AltimetraViewModel : ViewModel() {
     val estadoPantalla: State<EstadoPantalla>
         get() = _estadoPantalla
 
+    private val historialTemporal = mutableListOf<Double>()
+
     init {
-
         observarDatos()
-
     }
 
     private fun observarDatos() {
-
         viewModelScope.launch {
-
             RepositorioAltimetra.datos.collect { datos ->
-
                 if (datos == null) return@collect
+
+                // Guardamos la presión para la gráfica (máximo 60 puntos)
+                historialTemporal.add(datos.lectura.presion)
+                if (historialTemporal.size > 60) {
+                    historialTemporal.removeAt(0)
+                }
 
                 _estadoPantalla.value =
                     EstadoPantalla(
-
                         presion = datos.lectura.presion,
-
                         altitud = datos.altitud,
-
                         estado = datos.estado,
-
                         modo = datos.modoFuncionamiento,
-
-                        simulacion = datos.tipoSimulacion
-                            ?: _estadoPantalla.value.simulacion,
-
-                        conectado = true
-
+                        simulacion = datos.tipoSimulacion ?: com.altimetra.shared.modelo.TipoSimulacion.ESTABLE,
+                        conectado = true,
+                        historialPresion = historialTemporal.toList()
                     )
-
             }
-
         }
-
     }
-
 }

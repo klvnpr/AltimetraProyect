@@ -31,9 +31,7 @@ class MainActivity : ComponentActivity() {
     // Lanzador para pedir permiso de notificaciones en Android 13+
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        // Si no se concede, el usuario no recibirá alertas en el teléfono
-    }
+    ) { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,10 +46,9 @@ class MainActivity : ComponentActivity() {
         }
 
         // Iniciamos el cliente de comunicación
-        clienteMessage.iniciar { /* Recibe lecturas si fuera necesario en la UI */ }
+        clienteMessage.iniciar { }
 
-        // Si el usuario ya está logueado localmente en el SharedPreferences,
-        // le avisamos proactivamente al reloj desde el arranque de la app.
+        // Si el usuario ya está logueado localmente, avisamos al reloj
         if (sessionManager.isUserLoggedIn()) {
             clienteMessage.enviarEstadoAutenticacion(true)
         }
@@ -76,7 +73,6 @@ class MainActivity : ComponentActivity() {
                         RegistroPantalla(
                             onRegistroExitoso = {
                                 sessionManager.setLoginState(true)
-                                // ENVIAR SEÑAL AL RELOJ
                                 clienteMessage.enviarEstadoAutenticacion(true)
                                 pantallaActual = DestinoMovil.APP_PRINCIPAL
                             },
@@ -87,7 +83,6 @@ class MainActivity : ComponentActivity() {
                         LoginPantalla(
                             onLoginExitoso = {
                                 sessionManager.setLoginState(true)
-                                // ENVIAR SEÑAL AL RELOJ
                                 clienteMessage.enviarEstadoAutenticacion(true)
                                 pantallaActual = DestinoMovil.APP_PRINCIPAL
                             },
@@ -99,11 +94,8 @@ class MainActivity : ComponentActivity() {
                         PantallaPrincipal(
                             viewModel = viewModel,
                             onCerrarSesion = {
-                                // 1. Borramos la sesión en el teléfono
                                 sessionManager.setLoginState(false)
-                                // 2. Bloqueamos la app del reloj enviándole "false"
                                 clienteMessage.enviarEstadoAutenticacion(false)
-                                // 3. Devolvemos al usuario a la pantalla de Login
                                 pantallaActual = DestinoMovil.LOGIN
                             }
                         )

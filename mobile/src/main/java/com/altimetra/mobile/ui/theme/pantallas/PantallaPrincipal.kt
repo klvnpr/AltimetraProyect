@@ -40,6 +40,7 @@ import com.altimetra.mobile.ui.theme.RojoDesconectado
 import com.altimetra.mobile.ui.theme.TealAltimetra
 import com.altimetra.mobile.ui.theme.TealClaro
 import com.altimetra.mobile.ui.theme.VerdeConectado
+import com.altimetra.mobile.ui.theme.componentes.GraficaTendencia
 import com.altimetra.mobile.ui.theme.componentes.TarjetaInformacion
 import com.altimetra.mobile.ui.theme.viewmodel.AltimetraViewModel
 
@@ -58,7 +59,7 @@ fun PantallaPrincipal(
             modifier = Modifier.fillMaxSize()
         ) {
 
-            // --- Encabezado de marca con degradado inspirado en el logo ---
+            // --- Encabezado ---
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -149,9 +150,15 @@ fun PantallaPrincipal(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
+                // GRÁFICA DE TENDENCIA
+                GraficaTendencia(
+                    datos = estado.historialPresion,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
                 TarjetaInformacion(
                     titulo = "Altitud",
-                    valor = String.format("%.1f m", estado.altitud),
+                    valor = String.format("%.2f m", estado.altitud),
                     icono = Icons.Filled.Terrain,
                     colorAcento = TealAltimetra,
                     modifier = Modifier.fillMaxWidth()
@@ -179,8 +186,10 @@ fun PantallaPrincipal(
                     )
                 }
 
+                val esSimulacion = estado.modo == com.altimetra.shared.modelo.ModoFuncionamiento.SIMULACION
+
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = if (esSimulacion) Arrangement.spacedBy(12.dp) else Arrangement.Center,
                     modifier = Modifier.fillMaxWidth()
                 ) {
 
@@ -189,16 +198,18 @@ fun PantallaPrincipal(
                         valor = estado.modo.name,
                         icono = Icons.Filled.Tune,
                         colorAcento = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.weight(1f)
+                        modifier = if (esSimulacion) Modifier.weight(1f) else Modifier.fillMaxWidth(0.48f)
                     )
 
-                    TarjetaInformacion(
-                        titulo = "Escenario",
-                        valor = estado.simulacion.name,
-                        icono = Icons.Filled.Terrain,
-                        colorAcento = NaranjaSendero,
-                        modifier = Modifier.weight(1f)
-                    )
+                    if (esSimulacion) {
+                        TarjetaInformacion(
+                            titulo = "Escenario",
+                            valor = estado.simulacion.name,
+                            icono = Icons.Filled.Terrain,
+                            colorAcento = NaranjaSendero,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
             }
         }

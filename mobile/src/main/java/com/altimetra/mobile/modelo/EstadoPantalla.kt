@@ -16,6 +16,8 @@ data class EstadoPantalla(
 
     val simulacion: TipoSimulacion = TipoSimulacion.ESTABLE,
 
-    val conectado: Boolean = false
+    val conectado: Boolean = false,
+
+    val historialPresion: List<Double> = emptyList()
 
 )

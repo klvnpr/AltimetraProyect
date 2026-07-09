@@ -22,21 +22,20 @@ object CalculadoraAltitud {
     ): Double {
 
         if (presionReferencia == null) {
-
             presionReferencia = presion
-
         }
 
-        val altitudActual =
-            calcularBarometrica(presion)
+        val altitudActual = calcularBarometrica(presion)
+        val altitudReferencia = calcularBarometrica(presionReferencia!!)
 
-        val altitudReferencia =
-            calcularBarometrica(
-                presionReferencia!!
-            )
+        return altitudActual - altitudReferencia
+    }
 
-        return maxOf(0.0, altitudActual - altitudReferencia)
-
+    /**
+     * Permite recalibrar el altímetro.
+     */
+    fun recalibrar() {
+        presionReferencia = null
     }
 
     /**
@@ -45,24 +44,6 @@ object CalculadoraAltitud {
     private fun calcularBarometrica(
         presion: Double
     ): Double {
-
-        return 44330.0 *
-                (
-                        1 -
-                                (
-                                        presion / 1013.25
-                                        ).pow(0.1903)
-                        )
-
+        return 44330.0 * (1 - (presion / 1013.25).pow(0.1903))
     }
-
-    /**
-     * Permite recalibrar el altímetro.
-     */
-    fun recalibrar() {
-
-        presionReferencia = null
-
-    }
-
 }

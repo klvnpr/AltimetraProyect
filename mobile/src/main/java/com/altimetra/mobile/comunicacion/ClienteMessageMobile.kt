@@ -10,7 +10,7 @@ import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.Wearable
 
 class ClienteMessageMobile(
-    private val context: Context // Añadido 'private val' para poder usarlo en funciones miembro
+    private val context: Context
 ) : MessageClient.OnMessageReceivedListener {
 
     private val messageClient =
@@ -37,7 +37,7 @@ class ClienteMessageMobile(
     }
 
     /**
-     * NUEVA FUNCIÓN: Busca todos los relojes Wear OS vinculados
+     * Busca todos los relojes Wear OS vinculados
      * y les envía un "true" o "false" dependiendo del estado de la sesión.
      */
     fun enviarEstadoAutenticacion(isLoggedIn: Boolean) {
@@ -45,17 +45,12 @@ class ClienteMessageMobile(
 
         Wearable.getNodeClient(context).connectedNodes
             .addOnSuccessListener { nodos ->
-                Log.d("Altimetra", "Nodos reloj encontrados: ${nodos.size}")
                 nodos.forEach { nodo ->
                     messageClient.sendMessage(
                         nodo.id,
                         ConstantesComunicacion.RUTA_AUTH,
                         bytes
-                    ).addOnSuccessListener {
-                        Log.d("Altimetra", "Señal de autenticación ($isLoggedIn) enviada al reloj: ${nodo.displayName}")
-                    }.addOnFailureListener {
-                        Log.e("Altimetra", "Error al enviar autenticación al reloj", it)
-                    }
+                    )
                 }
             }
     }
@@ -69,16 +64,6 @@ class ClienteMessageMobile(
 
         val json = String(messageEvent.data)
         val datos = SerializadorDatos.deserializar(json)
-
-        Log.d(
-            "Altimetra",
-            """
-            Mensaje recibido
-            Presión: ${datos.lectura.presion}
-            Altitud: ${datos.altitud}
-            Estado: ${datos.estado}
-            """.trimIndent()
-        )
 
         callback?.invoke(datos)
     }

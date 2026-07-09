@@ -9,7 +9,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.altimetra.wear"
+        applicationId = "com.altimetra.mobile"
         minSdk = 30
         targetSdk = 36
         versionCode = 1
