@@ -93,8 +93,6 @@ class GeneradorSimulacion {
 
         }
 
-        println("Escenario actual: $tipo")
-
     }
 
 }

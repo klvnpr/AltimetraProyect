@@ -38,8 +38,6 @@ object AdministradorFuente {
     fun usarSensorReal() {
         modo = ModoFuncionamiento.REAL
     }
-    
-    fun obtenerModoActual() = modo
 
     fun cambiarEscenario(
         tipo: com.altimetra.shared.modelo.TipoSimulacion
